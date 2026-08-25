@@ -61,7 +61,7 @@ This installer will set up a fedimint guardian on this machine:
   2. Download the guardian compose into $DEPLOY_DIR
   3. Start fedimintd + a bundled, pruned Bitcoin Core node (~50GB)
   4. Wait for the Web UI to come up at $UI_URL
-  5. Optionally install Signal Desktop for exchanging setup codes with co-guardians
+  5. Install Signal Desktop for exchanging setup codes with co-guardians
 
 Your node will sync the Bitcoin blockchain in the background, which takes a
 day or more. Until it has caught up, fedimintd falls back to mempool.space for
@@ -99,27 +99,24 @@ done
 
 # Signal Desktop ships amd64 debs only.
 if [[ "$ARCH" == "amd64" ]] && ! command -v signal-desktop >/dev/null; then
-    echo
-    if confirm "Install Signal Desktop for exchanging setup codes?"; then
-        echo "==> Installing Signal Desktop"
-        curl -fsSL https://updates.signal.org/desktop/apt/keys.asc \
-            | gpg --dearmor \
-            | sudo tee /usr/share/keyrings/signal-desktop-keyring.gpg >/dev/null
-        echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main' \
-            | sudo tee /etc/apt/sources.list.d/signal-xenial.list >/dev/null
-        sudo apt update
-        sudo apt install -y signal-desktop
+    echo "==> Installing Signal Desktop"
+    curl -fsSL https://updates.signal.org/desktop/apt/keys.asc \
+        | gpg --dearmor \
+        | sudo tee /usr/share/keyrings/signal-desktop-keyring.gpg >/dev/null
+    echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main' \
+        | sudo tee /etc/apt/sources.list.d/signal-xenial.list >/dev/null
+    sudo apt update
+    sudo apt install -y signal-desktop
 
-        echo "==> Pinning Signal Desktop to the dock"
-        favs=$(gsettings get org.gnome.shell favorite-apps 2>/dev/null || echo '[]')
-        if [[ "$favs" != *signal-desktop.desktop* ]]; then
-            if [[ "$favs" == "[]" ]]; then
-                new="['signal-desktop.desktop']"
-            else
-                new="${favs%]}, 'signal-desktop.desktop']"
-            fi
-            gsettings set org.gnome.shell favorite-apps "$new" 2>/dev/null || true
+    echo "==> Pinning Signal Desktop to the dock"
+    favs=$(gsettings get org.gnome.shell favorite-apps 2>/dev/null || echo '[]')
+    if [[ "$favs" != *signal-desktop.desktop* ]]; then
+        if [[ "$favs" == "[]" ]]; then
+            new="['signal-desktop.desktop']"
+        else
+            new="${favs%]}, 'signal-desktop.desktop']"
         fi
+        gsettings set org.gnome.shell favorite-apps "$new" 2>/dev/null || true
     fi
 fi
 

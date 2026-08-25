@@ -7,17 +7,12 @@ on a fresh Ubuntu desktop.
 curl -fsSL https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu-desktop/main/bootstrap.sh | bash
 ```
 
-> This is a personal project, not an official Fedimint deployment artifact.
-> Read [`bootstrap.sh`](bootstrap.sh) and [`docker-compose.yaml`](docker-compose.yaml)
-> before running them — they are short on purpose. The official Docker deployment
-> lives in [`fedimint/fedimint/docker`](https://github.com/fedimint/fedimint/tree/master/docker).
-
 ## What it does
 
 1. Installs Docker if missing.
 2. Writes `docker-compose.yaml` into `~/fedimint-guardian` and starts it.
-3. Waits for the Web UI, then offers to install Signal Desktop for exchanging
-   setup codes with your co-guardians during the DKG ceremony.
+3. Waits for the Web UI, then installs Signal Desktop for exchanging setup
+   codes with your co-guardians during the DKG ceremony.
 
 | Service | Address | Exposure |
 | --- | --- | --- |
