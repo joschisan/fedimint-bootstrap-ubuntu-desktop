@@ -50,9 +50,11 @@ node cannot provide.
 ## Updating
 
 Click **Update Guardian** in the dock. It fetches the current
-`docker-compose.yaml` from this repo, shows you which release you are on and
-which one is available, asks for confirmation, and recreates the containers.
-There is one password prompt for the privileged step.
+`docker-compose.yaml` from this repo and compares it to the installed one. Any
+difference counts as an update — a new fedimintd release and a settings-only
+change both ship this way — and the whole file is replaced. It tells you which
+of the two it is, asks for confirmation, and recreates the containers. There is
+one password prompt for the privileged step.
 
 Because the compose file pins an exact release, this only ever moves a guardian
 between tagged releases — never onto an untagged branch build. Bumping the tag
