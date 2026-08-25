@@ -13,6 +13,9 @@ curl -fsSL https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu
 2. Writes `docker-compose.yaml` into `~/fedimintd` and starts it.
 3. Waits for the Web UI, then installs Signal Desktop for exchanging setup
    codes with your co-guardians during the DKG ceremony.
+4. Adds an "Update Guardian" icon to the dock.
+
+Nothing after step 1 needs a terminal.
 
 | Service | Address | Exposure |
 | --- | --- | --- |
@@ -43,6 +46,20 @@ gets chain data from nowhere else.
 **The node is not pruned.** It keeps the full chain (~1TB), so it can serve
 historical blocks — which a federation restored from backup needs, and a pruned
 node cannot provide.
+
+## Updating
+
+Click **Update Guardian** in the dock. It fetches the current
+`docker-compose.yaml` from this repo, shows you which release you are on and
+which one is available, asks for confirmation, and recreates the containers.
+There is one password prompt for the privileged step.
+
+Because the compose file pins an exact release, this only ever moves a guardian
+between tagged releases — never onto an untagged branch build. Bumping the tag
+in this repo is what publishes an update.
+
+The restart briefly takes the guardian offline. The federation keeps running as
+long as enough co-guardians stay up, so agree the timing with them first.
 
 ## Versions
 

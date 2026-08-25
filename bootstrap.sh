@@ -2,8 +2,9 @@
 # One-shot installer for a fedimint guardian on a fresh Ubuntu desktop.
 #
 # Installs Docker (if missing), brings up fedimintd + a bundled, fully
-# validating bitcoind, opens the Web UI in a browser, then installs Signal
-# Desktop for exchanging setup codes during the federation ceremony.
+# validating bitcoind, opens the Web UI in a browser, installs Signal Desktop
+# for exchanging setup codes during the federation ceremony, and adds an
+# "Update Guardian" icon to the dock. Nothing here needs a terminal afterwards.
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu-desktop/main/bootstrap.sh | bash
@@ -12,6 +13,7 @@ set -euo pipefail
 
 DEPLOY_DIR="$HOME/fedimintd"
 COMPOSE_URL="https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu-desktop/main/docker-compose.yaml"
+UPDATE_URL="https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu-desktop/main/update.sh"
 UI_URL="http://127.0.0.1:8175"
 LOGS_URL="http://127.0.0.1:8080"
 
@@ -21,6 +23,20 @@ confirm() {
     fi
     read -rp "$1 [y/N] " reply </dev/tty
     [[ "$reply" =~ ^[Yy]$ ]]
+}
+
+pin_to_dock() {
+    local desktop_id="$1" favs new
+    favs=$(gsettings get org.gnome.shell favorite-apps 2>/dev/null || echo '[]')
+    if [[ "$favs" == *"$desktop_id"* ]]; then
+        return 0
+    fi
+    if [[ "$favs" == "[]" ]]; then
+        new="['$desktop_id']"
+    else
+        new="${favs%]}, '$desktop_id']"
+    fi
+    gsettings set org.gnome.shell favorite-apps "$new" 2>/dev/null || true
 }
 
 ARCH=$(dpkg --print-architecture)
@@ -63,6 +79,7 @@ This installer will set up a fedimint guardian on this machine:
   3. Start fedimintd + a bundled, fully validating Bitcoin Core node (~1TB)
   4. Wait for the Web UI to come up at $UI_URL
   5. Install Signal Desktop for exchanging setup codes with co-guardians
+  6. Add an "Update Guardian" icon to the dock for future releases
 
 Your guardian uses this node and nothing else for chain data, so it is not
 ready until the node has synced the Bitcoin blockchain — a day or more. Do not
@@ -85,6 +102,23 @@ cd "$DEPLOY_DIR"
 
 echo "==> Downloading docker-compose.yaml"
 curl -fsSL -O "$COMPOSE_URL"
+
+echo "==> Installing the updater"
+curl -fsSL -O "$UPDATE_URL"
+chmod +x update.sh
+
+mkdir -p "$HOME/.local/share/applications"
+cat > "$HOME/.local/share/applications/fedimint-guardian-update.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=Update Guardian
+Comment=Install the latest fedimintd release
+Exec=$DEPLOY_DIR/update.sh
+Icon=system-software-update
+Terminal=false
+Categories=System;
+DESKTOP
+pin_to_dock fedimint-guardian-update.desktop
 
 echo "==> Starting guardian"
 sudo docker compose up -d
@@ -114,15 +148,7 @@ if [[ "$ARCH" == "amd64" ]] && ! command -v signal-desktop >/dev/null; then
     sudo apt install -y signal-desktop
 
     echo "==> Pinning Signal Desktop to the dock"
-    favs=$(gsettings get org.gnome.shell favorite-apps 2>/dev/null || echo '[]')
-    if [[ "$favs" != *signal-desktop.desktop* ]]; then
-        if [[ "$favs" == "[]" ]]; then
-            new="['signal-desktop.desktop']"
-        else
-            new="${favs%]}, 'signal-desktop.desktop']"
-        fi
-        gsettings set org.gnome.shell favorite-apps "$new" 2>/dev/null || true
-    fi
+    pin_to_dock signal-desktop.desktop
 fi
 
 cat <<EOF
@@ -143,4 +169,6 @@ wait for this to report "initialblockdownload": false before going further:
 Next steps, once it is synced:
   1. Open $UI_URL in your browser.
   2. Open Signal and coordinate setup-code exchange with your co-guardians.
+
+To install future fedimintd releases, click "Update Guardian" in the dock.
 EOF
