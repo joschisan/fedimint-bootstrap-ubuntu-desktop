@@ -50,7 +50,7 @@ services:
     ports:
       # Browser log viewer — bound to host loopback only, reachable from a
       # browser on this machine and nowhere else.
-      - 127.0.0.1:8000:8080
+      - 127.0.0.1:8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:

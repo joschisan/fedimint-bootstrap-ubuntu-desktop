@@ -18,7 +18,7 @@ curl -fsSL https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu
 | --- | --- | --- |
 | fedimintd p2p + api | `:8173/udp`, `:8174/udp` | public — must be reachable by peers |
 | fedimintd Web UI | `127.0.0.1:8175` | loopback — this machine only |
-| Log viewer (dozzle) | `127.0.0.1:8000` | loopback — this machine only |
+| Log viewer (dozzle) | `127.0.0.1:8080` | loopback — this machine only |
 | bitcoind RPC | docker network only | not published |
 
 ## Requirements
@@ -49,7 +49,7 @@ node cannot provide.
 ## Notes on the log viewer
 
 Dozzle mounts `/var/run/docker.sock`. It is read-only and bound to loopback, but
-socket access is effectively host root — anything that can reach port 8000 on
+socket access is effectively host root — anything that can reach port 8080 on
 this machine, or compromise that container, controls the host. Delete the
 `dozzle` service from the compose if you would rather use `docker compose logs -f`.
 
