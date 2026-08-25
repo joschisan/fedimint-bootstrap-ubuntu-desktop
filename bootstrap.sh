@@ -63,10 +63,9 @@ This installer will set up a fedimint guardian on this machine:
   4. Wait for the Web UI to come up at $UI_URL
   5. Install Signal Desktop for exchanging setup codes with co-guardians
 
-Your node will sync the Bitcoin blockchain in the background, which takes a
-day or more. Until it has caught up, fedimintd falls back to mempool.space for
-chain data so you can run the setup ceremony right away. See the README for how
-to turn that fallback off once your own node is synced.
+Your guardian uses this node and nothing else for chain data, so it is not
+ready until the node has synced the Bitcoin blockchain — a day or more. Do not
+run the setup ceremony before then. The command to check is printed at the end.
 
 EOF
 
@@ -129,7 +128,13 @@ Guardian is running.
   Compose:  $DEPLOY_DIR/docker-compose.yaml
   Logs:     sudo docker compose -f $DEPLOY_DIR/docker-compose.yaml logs -f
 
-Next steps:
+Bitcoin Core is now syncing. Your guardian has no other chain data source, so
+wait for this to report "initialblockdownload": false before going further:
+
+  sudo docker compose -f $DEPLOY_DIR/docker-compose.yaml \\
+      exec bitcoind bitcoin-cli -datadir=/data getblockchaininfo
+
+Next steps, once it is synced:
   1. Open $UI_URL in your browser.
   2. Open Signal and coordinate setup-code exchange with your co-guardians.
 EOF

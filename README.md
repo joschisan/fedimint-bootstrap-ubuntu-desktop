@@ -35,24 +35,18 @@ ssh -NL 8175:127.0.0.1:8175 -L 3001:127.0.0.1:3001 <your-host>
 
 ## Bitcoin backend
 
-This ships a bundled Bitcoin Core node, so your guardian validates the chain
-itself rather than trusting a third party.
+This ships a bundled Bitcoin Core node and points fedimintd at it exclusively.
+There is no third-party fallback: your guardian validates the chain itself, and
+gets chain data from nowhere else.
 
-Two consequences worth understanding:
-
-**It syncs in the background, for a day or more.** Until then, `FM_ESPLORA_URL`
-in the compose points fedimintd at mempool.space as a fallback so you can run
-the setup ceremony immediately. That means you are trusting mempool.space for
-chain data during that window. Once your node has caught up:
+**It is not ready until that node has synced**, which takes a day or more. Do
+not run the setup ceremony before then. Check with:
 
 ```bash
 cd ~/fedimint-guardian
 sudo docker compose exec bitcoind bitcoin-cli -datadir=/data getblockchaininfo
 # wait for "initialblockdownload": false
 ```
-
-then delete the `FM_ESPLORA_URL` line from `docker-compose.yaml` and run
-`sudo docker compose up -d`. Your guardian now trusts nobody but itself.
 
 **The node is pruned** (`-prune=50000`, ~50GB rather than ~1TB). A newly created
 federation only ever asks for recent blocks, so this is safe for the case this
