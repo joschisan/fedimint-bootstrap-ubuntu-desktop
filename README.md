@@ -50,14 +50,13 @@ node cannot provide.
 ## Updating
 
 Click **Update Guardian** in the dock. It fetches the current
-`docker-compose.yaml` from this repo and compares it to the installed one. Any
-difference counts as an update — a new fedimintd release and a settings-only
-change both ship this way — and the whole file is replaced. It tells you which
-of the two it is, asks for confirmation, and recreates the containers. There is
-one password prompt for the privileged step.
+`docker-compose.yaml` from this repo and compares it to the installed one. If
+they differ at all, the whole file is replaced and the containers are recreated;
+if they match, there is nothing to do. There is one password prompt for the
+privileged step.
 
 Because the compose file pins an exact release, this only ever moves a guardian
-between tagged releases — never onto an untagged branch build. Bumping the tag
+between tagged releases — never onto an untagged branch build. Editing the file
 in this repo is what publishes an update.
 
 The restart briefly takes the guardian offline. The federation keeps running as
