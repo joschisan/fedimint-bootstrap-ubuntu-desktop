@@ -33,15 +33,6 @@ This ships a bundled Bitcoin Core node and points fedimintd at it exclusively.
 There is no third-party fallback: your guardian validates the chain itself, and
 gets chain data from nowhere else.
 
-**It is not ready until that node has synced**, which takes a day or more. Do
-not run the setup ceremony before then. Check with:
-
-```bash
-cd ~/fedimintd
-sudo docker compose exec bitcoind bitcoin-cli -datadir=/data getblockchaininfo
-# wait for "initialblockdownload": false
-```
-
 **The node is not pruned.** It keeps the full chain (~1TB), so it can serve
 historical blocks — which a federation restored from backup needs, and a pruned
 node cannot provide.
