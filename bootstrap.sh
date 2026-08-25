@@ -13,7 +13,7 @@ set -euo pipefail
 DEPLOY_DIR="$HOME/fedimint-guardian"
 COMPOSE_URL="https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu-desktop/main/docker-compose.yaml"
 UI_URL="http://127.0.0.1:8175"
-LOGS_URL="http://127.0.0.1:3001"
+LOGS_URL="http://127.0.0.1:8000"
 
 confirm() {
     if [[ "${AUTO_YES:-}" == "1" ]]; then

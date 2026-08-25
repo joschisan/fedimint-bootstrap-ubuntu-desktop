@@ -53,9 +53,9 @@ services:
     restart: always
     ports:
       # Browser log viewer — bound to host loopback only. Open
-      # <http://127.0.0.1:3001> locally, or
-      # `ssh -NL 3001:127.0.0.1:3001 <host>` from another machine.
-      - 127.0.0.1:3001:8080
+      # <http://127.0.0.1:8000> locally, or
+      # `ssh -NL 8000:127.0.0.1:8000 <host>` from another machine.
+      - 127.0.0.1:8000:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
