@@ -39,6 +39,22 @@ pin_to_dock() {
     gsettings set org.gnome.shell favorite-apps "$new" 2>/dev/null || true
 }
 
+install_launcher() {
+    local id="$1" name="$2" comment="$3" icon="$4" exec_line="$5"
+    mkdir -p "$HOME/.local/share/applications"
+    cat > "$HOME/.local/share/applications/$id" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=$name
+Comment=$comment
+Exec=$exec_line
+Icon=$icon
+Terminal=false
+Categories=System;
+DESKTOP
+    pin_to_dock "$id"
+}
+
 ARCH=$(dpkg --print-architecture)
 if [[ "$ARCH" != "amd64" && "$ARCH" != "arm64" ]]; then
     echo "Unsupported architecture: $ARCH. This installer targets Ubuntu amd64 or arm64." >&2
@@ -79,7 +95,7 @@ This installer will set up a fedimint guardian on this machine:
   3. Start fedimintd + a bundled, fully validating Bitcoin Core node (~1TB)
   4. Wait for the Web UI to come up at $UI_URL
   5. Install Signal Desktop for exchanging setup codes with co-guardians
-  6. Add an "Update Guardian" icon to the dock for future releases
+  6. Add Guardian, Guardian Logs and Update Guardian icons to the dock
 
 Your guardian uses this node and nothing else for chain data, so it is not
 ready until the node has synced the Bitcoin blockchain — a day or more. Do not
@@ -103,22 +119,20 @@ cd "$DEPLOY_DIR"
 echo "==> Downloading docker-compose.yaml"
 curl -fsSL -O "$COMPOSE_URL"
 
-echo "==> Installing the updater"
+echo "==> Downloading update.sh"
 curl -fsSL -O "$UPDATE_URL"
 chmod +x update.sh
 
-mkdir -p "$HOME/.local/share/applications"
-cat > "$HOME/.local/share/applications/fedimint-guardian-update.desktop" <<DESKTOP
-[Desktop Entry]
-Type=Application
-Name=Update Guardian
-Comment=Install the latest fedimintd release
-Exec=$DEPLOY_DIR/update.sh
-Icon=system-software-update
-Terminal=false
-Categories=System;
-DESKTOP
-pin_to_dock fedimint-guardian-update.desktop
+echo "==> Adding dock icons"
+install_launcher fedimint-guardian.desktop \
+    "Guardian" "Open the guardian Web UI" \
+    web-browser "xdg-open $UI_URL"
+install_launcher fedimint-guardian-logs.desktop \
+    "Guardian Logs" "View the guardian log output" \
+    utilities-system-monitor "xdg-open $LOGS_URL"
+install_launcher fedimint-guardian-update.desktop \
+    "Update Guardian" "Install the latest guardian release" \
+    system-software-update "$DEPLOY_DIR/update.sh"
 
 echo "==> Starting guardian"
 sudo docker compose up -d
@@ -167,8 +181,9 @@ wait for this to report "initialblockdownload": false before going further:
       bitcoin-cli -datadir=/data -rpcuser=bitcoin -rpcpassword=bitcoin getblockchaininfo
 
 Next steps, once it is synced:
-  1. Open $UI_URL in your browser.
+  1. Click "Guardian" in the dock to open the Web UI.
   2. Open Signal and coordinate setup-code exchange with your co-guardians.
 
-To install future fedimintd releases, click "Update Guardian" in the dock.
+The dock also has "Guardian Logs" for log output and "Update Guardian" for
+installing future releases.
 EOF

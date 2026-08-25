@@ -13,7 +13,13 @@ curl -fsSL https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu
 2. Writes `docker-compose.yaml` into `~/fedimintd` and starts it.
 3. Waits for the Web UI, then installs Signal Desktop for exchanging setup
    codes with your co-guardians during the DKG ceremony.
-4. Adds an "Update Guardian" icon to the dock.
+4. Pins three icons to the dock:
+
+| Icon | Opens |
+| --- | --- |
+| **Guardian** | the Web UI at `127.0.0.1:8175` |
+| **Guardian Logs** | the log viewer at `127.0.0.1:8080` |
+| **Update Guardian** | the updater described below |
 
 Nothing after step 1 needs a terminal.
 
