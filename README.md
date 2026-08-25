@@ -37,13 +37,6 @@ gets chain data from nowhere else.
 historical blocks — which a federation restored from backup needs, and a pruned
 node cannot provide.
 
-## Notes on the log viewer
-
-Dozzle mounts `/var/run/docker.sock`. It is read-only and bound to loopback, but
-socket access is effectively host root — anything that can reach port 8080 on
-this machine, or compromise that container, controls the host. Delete the
-`dozzle` service from the compose if you would rather use `docker compose logs -f`.
-
 ## Versions
 
 Images are pinned. Current: `fedimintd v0.11.2`, `bitcoin 31.0`, `dozzle v10.7`.
