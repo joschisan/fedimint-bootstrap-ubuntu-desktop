@@ -3,8 +3,7 @@
 #
 # Installs Docker (if missing), brings up fedimintd + a bundled, fully
 # validating bitcoind, opens the Web UI in a browser, then installs Signal
-# Desktop for
-# exchanging setup codes during the federation ceremony.
+# Desktop for exchanging setup codes during the federation ceremony.
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu-desktop/main/bootstrap.sh | bash
