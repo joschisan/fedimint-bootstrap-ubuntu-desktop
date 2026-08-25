@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-DEPLOY_DIR="$HOME/fedimint-guardian"
+DEPLOY_DIR="$HOME/fedimintd"
 COMPOSE_URL="https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu-desktop/main/docker-compose.yaml"
 UI_URL="http://127.0.0.1:8175"
 LOGS_URL="http://127.0.0.1:8080"

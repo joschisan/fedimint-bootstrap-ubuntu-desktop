@@ -10,7 +10,7 @@ curl -fsSL https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu
 ## What it does
 
 1. Installs Docker if missing.
-2. Writes `docker-compose.yaml` into `~/fedimint-guardian` and starts it.
+2. Writes `docker-compose.yaml` into `~/fedimintd` and starts it.
 3. Waits for the Web UI, then installs Signal Desktop for exchanging setup
    codes with your co-guardians during the DKG ceremony.
 
@@ -37,7 +37,7 @@ gets chain data from nowhere else.
 not run the setup ceremony before then. Check with:
 
 ```bash
-cd ~/fedimint-guardian
+cd ~/fedimintd
 sudo docker compose exec bitcoind bitcoin-cli -datadir=/data getblockchaininfo
 # wait for "initialblockdownload": false
 ```
