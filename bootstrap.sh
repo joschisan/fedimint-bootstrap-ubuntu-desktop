@@ -137,8 +137,8 @@ Guardian is running.
 Bitcoin Core is now syncing. Your guardian has no other chain data source, so
 wait for this to report "initialblockdownload": false before going further:
 
-  sudo docker compose -f $DEPLOY_DIR/docker-compose.yaml \\
-      exec bitcoind bitcoin-cli -datadir=/data getblockchaininfo
+  sudo docker compose -f $DEPLOY_DIR/docker-compose.yaml exec bitcoind \\
+      bitcoin-cli -datadir=/data -rpcuser=bitcoin -rpcpassword=bitcoin getblockchaininfo
 
 Next steps, once it is synced:
   1. Open $UI_URL in your browser.

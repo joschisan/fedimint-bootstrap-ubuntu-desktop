@@ -16,10 +16,17 @@ curl -fsSL https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu
 
 | Service | Address | Exposure |
 | --- | --- | --- |
-| fedimintd p2p + api | `:8173/udp`, `:8174/udp` | public — must be reachable by peers |
+| fedimintd p2p + api | `0.0.0.0:8173/udp`, `0.0.0.0:8174/udp` | public — must be reachable by peers |
 | fedimintd Web UI | `127.0.0.1:8175` | loopback — this machine only |
 | Log viewer (dozzle) | `127.0.0.1:8080` | loopback — this machine only |
-| bitcoind RPC | docker network only | not published |
+| bitcoind RPC | `127.0.0.1:8332` | loopback — this machine only |
+
+All services run with `network_mode: host`. fedimintd's p2p and api are iroh
+(UDP), and bridge networking would stack Docker's NAT on top of your router's,
+leaving iroh two layers to punch through instead of one. The tradeoff is that
+each service binds its own address rather than being contained by a published
+port, so the loopback binds above are the only thing keeping the two UIs and the
+Bitcoin RPC off your LAN — take care when editing them.
 
 ## Requirements
 
