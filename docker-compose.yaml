@@ -1,0 +1,72 @@
+services:
+  fedimintd:
+    image: fedimint/fedimintd:v0.11.2
+    container_name: fedimintd
+    restart: always
+    depends_on:
+      - bitcoind
+    ports:
+      # p2p and api, both over iroh (UDP). These must be reachable from the
+      # internet for your guardian to talk to its peers.
+      - 8173:8173/udp
+      - 8174:8174/udp
+      # Web UI — bound to host loopback only. Open <http://127.0.0.1:8175>
+      # locally, or `ssh -NL 8175:127.0.0.1:8175 <host>` from another machine.
+      - 127.0.0.1:8175:8175/tcp
+    volumes:
+      - fedimintd_data:/data
+    environment:
+      - FM_ENABLE_IROH=true
+      - FM_BITCOIN_NETWORK=bitcoin
+      - FM_BITCOIND_URL=http://bitcoind:8332
+      - FM_BITCOIND_USERNAME=bitcoin
+      - FM_BITCOIND_PASSWORD=bitcoin
+      # With both backends set, fedimintd uses bitcoind as primary and falls
+      # back to esplora while bitcoind is still doing its initial sync, so the
+      # guardian is usable from day one. Delete this line once `docker compose
+      # exec bitcoind bitcoin-cli -datadir=/data getblockchaininfo` reports
+      # initialblockdownload=false, and your guardian trusts nobody but itself.
+      - FM_ESPLORA_URL=https://mempool.space/api
+      - FM_BIND_P2P=0.0.0.0:8173
+      - FM_BIND_API=0.0.0.0:8174
+      - FM_BIND_UI=0.0.0.0:8175
+
+  bitcoind:
+    image: btcpayserver/bitcoin:31.0
+    container_name: bitcoind
+    restart: always
+    volumes:
+      - bitcoind_data:/data
+    command:
+      - bitcoind
+      - -datadir=/data
+      - -server=1
+      - -rpcbind=0.0.0.0
+      # Docker's bridge network range only — the RPC is not exposed to the host
+      # or the internet, and no port for it is published above.
+      - -rpcallowip=172.16.0.0/12
+      - -rpcuser=bitcoin
+      - -rpcpassword=bitcoin
+      # ~50GB instead of ~1TB. A new federation only ever asks for recent
+      # blocks, so this is safe here. It is NOT safe if you later restore an
+      # older federation against this node — see README.
+      - -prune=50000
+      - -dbcache=1024
+
+  dozzle:
+    image: amir20/dozzle:v10.7
+    container_name: dozzle
+    restart: always
+    ports:
+      # Browser log viewer — bound to host loopback only. Open
+      # <http://127.0.0.1:3001> locally, or
+      # `ssh -NL 3001:127.0.0.1:3001 <host>` from another machine.
+      - 127.0.0.1:3001:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - DOZZLE_NO_ANALYTICS=true
+
+volumes:
+  fedimintd_data:
+  bitcoind_data:
