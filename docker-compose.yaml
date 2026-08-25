@@ -10,8 +10,8 @@ services:
       # internet for your guardian to talk to its peers.
       - 8173:8173/udp
       - 8174:8174/udp
-      # Web UI — bound to host loopback only. Open <http://127.0.0.1:8175>
-      # locally, or `ssh -NL 8175:127.0.0.1:8175 <host>` from another machine.
+      # Web UI — bound to host loopback only, reachable from a browser on this
+      # machine and nowhere else.
       - 127.0.0.1:8175:8175/tcp
     volumes:
       - fedimintd_data:/data
@@ -41,10 +41,6 @@ services:
       - -rpcallowip=172.16.0.0/12
       - -rpcuser=bitcoin
       - -rpcpassword=bitcoin
-      # ~50GB instead of ~1TB. A new federation only ever asks for recent
-      # blocks, so this is safe here. It is NOT safe if you later restore an
-      # older federation against this node — see README.
-      - -prune=50000
       - -dbcache=1024
 
   dozzle:
@@ -52,9 +48,8 @@ services:
     container_name: dozzle
     restart: always
     ports:
-      # Browser log viewer — bound to host loopback only. Open
-      # <http://127.0.0.1:8000> locally, or
-      # `ssh -NL 8000:127.0.0.1:8000 <host>` from another machine.
+      # Browser log viewer — bound to host loopback only, reachable from a
+      # browser on this machine and nowhere else.
       - 127.0.0.1:8000:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro

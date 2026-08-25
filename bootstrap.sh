@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # One-shot installer for a fedimint guardian on a fresh Ubuntu desktop.
 #
-# Installs Docker (if missing), brings up fedimintd + a bundled, pruned
-# bitcoind, opens the Web UI in a browser, then installs Signal Desktop for
+# Installs Docker (if missing), brings up fedimintd + a bundled, fully
+# validating bitcoind, opens the Web UI in a browser, then installs Signal
+# Desktop for
 # exchanging setup codes during the federation ceremony.
 #
 # Usage:
@@ -47,10 +48,11 @@ if [[ -e "$DEPLOY_DIR" ]]; then
     exit 1
 fi
 
-# The pruned bitcoind needs ~50GB, plus headroom for fedimintd's own database.
+# A full, unpruned bitcoind needs ~1TB, plus headroom for fedimintd's own
+# database and future chain growth.
 AVAIL_GB=$(df -BG --output=avail "$HOME" | tail -1 | tr -dc '0-9')
-if [[ "$AVAIL_GB" -lt 80 ]]; then
-    echo "Only ${AVAIL_GB}GB free on $HOME. A pruned Bitcoin Core node needs ~50GB, and 80GB is recommended." >&2
+if [[ "$AVAIL_GB" -lt 1200 ]]; then
+    echo "Only ${AVAIL_GB}GB free on $HOME. A full Bitcoin Core node needs ~1TB, and 1.2TB is recommended." >&2
     confirm "Continue anyway?" || { echo "Aborted."; exit 0; }
 fi
 
@@ -59,7 +61,7 @@ This installer will set up a fedimint guardian on this machine:
 
   1. Install Docker (if missing)
   2. Download the guardian compose into $DEPLOY_DIR
-  3. Start fedimintd + a bundled, pruned Bitcoin Core node (~50GB)
+  3. Start fedimintd + a bundled, fully validating Bitcoin Core node (~1TB)
   4. Wait for the Web UI to come up at $UI_URL
   5. Install Signal Desktop for exchanging setup codes with co-guardians
 
@@ -95,6 +97,11 @@ for _ in $(seq 60); do
     fi
     sleep 1
 done
+
+if [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]]; then
+    echo "==> Opening $UI_URL"
+    xdg-open "$UI_URL" >/dev/null 2>&1 || true
+fi
 
 # Signal Desktop ships amd64 debs only.
 if [[ "$ARCH" == "amd64" ]] && ! command -v signal-desktop >/dev/null; then

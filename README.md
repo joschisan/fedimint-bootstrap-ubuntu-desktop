@@ -17,20 +17,14 @@ curl -fsSL https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu
 | Service | Address | Exposure |
 | --- | --- | --- |
 | fedimintd p2p + api | `:8173/udp`, `:8174/udp` | public — must be reachable by peers |
-| fedimintd Web UI | `127.0.0.1:8175` | loopback |
-| Log viewer (dozzle) | `127.0.0.1:8000` | loopback |
+| fedimintd Web UI | `127.0.0.1:8175` | loopback — this machine only |
+| Log viewer (dozzle) | `127.0.0.1:8000` | loopback — this machine only |
 | bitcoind RPC | docker network only | not published |
-
-To reach the UIs from another machine:
-
-```bash
-ssh -NL 8175:127.0.0.1:8175 -L 8000:127.0.0.1:8000 <your-host>
-```
 
 ## Requirements
 
 - Ubuntu (tested on 26.04 LTS desktop), amd64 or arm64
-- ~80GB free disk — ~50GB for the pruned Bitcoin node, the rest headroom
+- ~1.2TB free disk — ~1TB for the Bitcoin node, the rest headroom
 - A publicly reachable UDP path for ports 8173 and 8174
 
 ## Bitcoin backend
@@ -48,18 +42,16 @@ sudo docker compose exec bitcoind bitcoin-cli -datadir=/data getblockchaininfo
 # wait for "initialblockdownload": false
 ```
 
-**The node is pruned** (`-prune=50000`, ~50GB rather than ~1TB). A newly created
-federation only ever asks for recent blocks, so this is safe for the case this
-installer covers. It is *not* safe if you later point an older, restored
-federation at this node — it may need blocks that have been pruned away. Drop
-the `-prune` flag and resync from scratch if you need that.
+**The node is not pruned.** It keeps the full chain (~1TB), so it can serve
+historical blocks — which a federation restored from backup needs, and a pruned
+node cannot provide.
 
 ## Notes on the log viewer
 
 Dozzle mounts `/var/run/docker.sock`. It is read-only and bound to loopback, but
-socket access is effectively host root — anyone who can reach port 8000 or
-compromise that container controls the host. Delete the `dozzle` service from
-the compose if you would rather use `docker compose logs -f`.
+socket access is effectively host root — anything that can reach port 8000 on
+this machine, or compromise that container, controls the host. Delete the
+`dozzle` service from the compose if you would rather use `docker compose logs -f`.
 
 ## Versions
 
