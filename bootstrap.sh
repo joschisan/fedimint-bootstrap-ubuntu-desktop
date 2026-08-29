@@ -3,8 +3,9 @@
 #
 # Installs Docker (if missing), brings up fedimintd + a bundled, fully
 # validating bitcoind, opens the Web UI in a browser, installs Signal Desktop
-# for exchanging setup codes during the federation ceremony, and adds an
-# "Update Guardian" icon to the dock. Nothing here needs a terminal afterwards.
+# for exchanging setup codes during the federation ceremony, and pins
+# Dashboard, Logs and Update shortcuts to the dock. Nothing here needs a
+# terminal afterwards.
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu-desktop/main/bootstrap.sh | bash
@@ -69,9 +70,9 @@ if [[ -r /etc/os-release ]]; then
     DISTRO_ID="${ID:-unknown}"
     DISTRO_VERSION="${VERSION_ID:-unknown}"
 fi
-if [[ "$DISTRO_ID" != "ubuntu" ]]; then
-    echo "This installer is tested on Ubuntu 26.04 LTS desktop. You appear to be running $DISTRO_ID $DISTRO_VERSION." >&2
-    confirm "Continue anyway?" || { echo "Aborted."; exit 0; }
+if [[ "$DISTRO_ID" != "ubuntu" || "$DISTRO_VERSION" != "26.04" ]]; then
+    echo "This installer requires Ubuntu 26.04 LTS desktop. You appear to be running $DISTRO_ID $DISTRO_VERSION." >&2
+    exit 1
 fi
 
 if [[ -e "$DEPLOY_DIR" ]]; then
@@ -95,7 +96,7 @@ This installer will set up a fedimint guardian on this machine:
   3. Start fedimintd + a bundled, fully validating Bitcoin Core node (~1TB)
   4. Wait for the Web UI to come up at $UI_URL
   5. Install Signal Desktop for exchanging setup codes with co-guardians
-  6. Add Guardian, Guardian Logs and Update Guardian icons to the dock
+  6. Pin Dashboard, Logs and Update shortcuts to the dock
 
 Your guardian uses this node and nothing else for chain data, so it is not
 ready until the node has synced the Bitcoin blockchain — a day or more. Do not
@@ -112,6 +113,8 @@ if ! command -v docker >/dev/null; then
     curl -fsSL https://get.docker.com | sh
 fi
 
+sudo usermod -aG docker "$USER"
+
 echo "==> Preparing $DEPLOY_DIR"
 mkdir "$DEPLOY_DIR"
 cd "$DEPLOY_DIR"
@@ -125,13 +128,13 @@ chmod +x update.sh
 
 echo "==> Adding dock icons"
 install_launcher fedimint-guardian.desktop \
-    "Guardian" "Open the guardian Web UI" \
+    "Dashboard" "Open the guardian Web UI" \
     web-browser "xdg-open $UI_URL"
 install_launcher fedimint-guardian-logs.desktop \
-    "Guardian Logs" "View the guardian log output" \
+    "Logs" "View the guardian log output" \
     utilities-system-monitor "xdg-open $LOGS_URL"
 install_launcher fedimint-guardian-update.desktop \
-    "Update Guardian" "Install the latest guardian release" \
+    "Update" "Install the latest guardian release" \
     system-software-update "$DEPLOY_DIR/update.sh"
 
 echo "==> Starting guardian"
@@ -178,12 +181,12 @@ Bitcoin Core is now syncing. Your guardian has no other chain data source, so
 wait for this to report "initialblockdownload": false before going further:
 
   sudo docker compose -f $DEPLOY_DIR/docker-compose.yaml exec bitcoind \\
-      bitcoin-cli -datadir=/data -rpcuser=bitcoin -rpcpassword=bitcoin getblockchaininfo
+      bitcoin-cli -rpcuser=bitcoin -rpcpassword=bitcoin getblockchaininfo
 
 Next steps, once it is synced:
-  1. Click "Guardian" in the dock to open the Web UI.
+  1. Click "Dashboard" in the dock to open the Web UI.
   2. Open Signal and coordinate setup-code exchange with your co-guardians.
 
-The dock also has "Guardian Logs" for log output and "Update Guardian" for
-installing future releases.
+The dock also has "Logs" for log output and "Update" for installing future
+releases.
 EOF

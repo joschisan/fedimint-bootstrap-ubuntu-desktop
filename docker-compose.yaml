@@ -5,7 +5,7 @@
 # are what keep the Web UI, the log viewer and the Bitcoin RPC off the LAN.
 services:
   fedimintd:
-    image: fedimint/fedimintd:v0.11.2
+    image: fedimint/fedimintd:releases-v0.11
     container_name: fedimintd
     restart: always
     network_mode: host
@@ -29,15 +29,13 @@ services:
       - FM_BIND_UI=127.0.0.1:8175
 
   bitcoind:
-    image: btcpayserver/bitcoin:31.0
+    image: bitcoin/bitcoin:latest
     container_name: bitcoind
     restart: always
     network_mode: host
     volumes:
-      - bitcoind_data:/data
+      - bitcoind_data:/home/bitcoin/.bitcoin
     command:
-      - bitcoind
-      - -datadir=/data
       - -server=1
       # RPC is loopback only — fedimintd shares this network namespace, and
       # nothing else needs to reach it.
@@ -48,7 +46,7 @@ services:
       - -dbcache=1024
 
   dozzle:
-    image: amir20/dozzle:v10.7
+    image: amir20/dozzle:latest
     container_name: dozzle
     restart: always
     network_mode: host

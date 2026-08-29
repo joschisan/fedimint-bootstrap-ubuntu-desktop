@@ -17,9 +17,9 @@ curl -fsSL https://raw.githubusercontent.com/joschisan/fedimint-bootstrap-ubuntu
 
 | Icon | Opens |
 | --- | --- |
-| **Guardian** | the Web UI at `127.0.0.1:8175` |
-| **Guardian Logs** | the log viewer at `127.0.0.1:8080` |
-| **Update Guardian** | the updater described below |
+| **Dashboard** | the Web UI at `127.0.0.1:8175` |
+| **Logs** | the log viewer at `127.0.0.1:8080` |
+| **Update** | the updater described below |
 
 Nothing after step 1 needs a terminal.
 
@@ -39,7 +39,7 @@ Bitcoin RPC off your LAN — take care when editing them.
 
 ## Requirements
 
-- Ubuntu (tested on 26.04 LTS desktop), amd64 or arm64
+- Ubuntu 26.04 LTS desktop, amd64 or arm64
 - ~1.2TB free disk — ~1TB for the Bitcoin node, the rest headroom
 - A publicly reachable UDP path for ports 8173 and 8174
 
@@ -55,19 +55,19 @@ node cannot provide.
 
 ## Updating
 
-Click **Update Guardian** in the dock. It fetches the current
-`docker-compose.yaml` from this repo and compares it to the installed one. If
-they differ at all, the whole file is replaced and the containers are recreated;
-if they match, there is nothing to do. There is one password prompt for the
-privileged step.
+Click **Update** in the dock. It runs `docker compose pull` and recreates any
+containers whose image changed — no password prompt, no confirmation. The
+compose file is written once at install and never touched again; what an
+update means is decided entirely by where the image tags point.
 
-Because the compose file pins an exact release, this only ever moves a guardian
-between tagged releases — never onto an untagged branch build. Editing the file
-in this repo is what publishes an update.
-
-The restart briefly takes the guardian offline. The federation keeps running as
-long as enough co-guardians stay up, so agree the timing with them first.
+If an update is found, the restart briefly takes the guardian offline. The
+federation keeps running as long as enough co-guardians stay up, so agree the
+timing with them first.
 
 ## Versions
 
-Images are pinned. Current: `fedimintd v0.11.2`, `bitcoin 31.0`, `dozzle v10.7`.
+The compose floats on published tags rather than pinning exact versions:
+`fedimintd` tracks its release series (`releases-v0.11`, so patch releases
+arrive via the Update button), and `bitcoin/bitcoin` and `dozzle` track
+`latest`. Moving fedimintd to a new release series is a one-line edit to the
+installed `~/fedimintd/docker-compose.yaml`.
